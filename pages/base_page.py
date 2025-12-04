@@ -28,6 +28,7 @@ class BasePage:
         element = self.wait_and_find_element(locator)
         element.click()
 
+    @allure.step('Подождать, прокрутить до видимости и кликнуть')
     def wait_and_click_element(self, element):
         WebDriverWait(self.driver, Config.DEFAULT_TIMEOUT).until(
             EC.element_to_be_clickable(element)
@@ -39,3 +40,17 @@ class BasePage:
     def send_keys(self, locator, text):
         element = self.wait_and_find_element(locator)
         element.send_keys(text)
+
+    @allure.step('Получить текущуюю ссылку')
+    def get_current_url(self):
+        return self.driver.current_url
+    
+    @allure.step('Переключиться на новую вкладку')
+    def switch_window(self):
+        original_window = self.driver.current_window_handle
+        WebDriverWait(self.driver, Config.DEFAULT_TIMEOUT).until(EC.number_of_windows_to_be(2))
+        for window_handle in self.driver.window_handles:
+            if window_handle != original_window:
+                self.driver.switch_to.window(window_handle)
+                WebDriverWait(self.driver, Config.DEFAULT_TIMEOUT).until(lambda d: d.current_url != "about:blank")
+                break
